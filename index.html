@@ -197,10 +197,10 @@
         if(!pcrender) {
             pc.data(gdata)
                 .hideAxis(["id", "time"])
-                .rotateLabels(true)
+                //.rotateLabels(true)
                 .render()
                 .brushMode("1D-axes")
-                .reorderable()
+                .reorderable();
                 //.createAxes();
             pcrender = true;
             d3.selectAll("#rightBottom .label").attr('transform', "rotate(30)");
