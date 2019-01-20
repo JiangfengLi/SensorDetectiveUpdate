@@ -31,7 +31,25 @@ that can be used to disable CORS policy.
 
 There is no need for installation as this is simply a JavaScript SPA (singla page application).
 
+### Features
 
+There are 4 main charts in the dashboard:
+
+- Top left chart (scatter): when the app starts, this is a simple 2d plot of longitude vs latitude. However, the user 
+can choose any two features from the top menu selection boxes and see the plot of those two features against each other. Also,
+as new data points come in, the old data points eventually fade away and are erased from memory. This is to prevent 
+clutter in the diagram.
+
+- Top right chart (heat map): this is a heat map of the 8 by 8 thermal sensor array. It updates automatically when the app
+reads the new temperatures from the sensor array.
+
+- Bottom left chart (small multiples): this is simply the timeseries plot of all features (against time).
+
+- Bottom right chart (parallel coordinates): this chart demonstrates each feature of the dataset on its own axis and 
+connects features via lines thus allowing user to discover correlations between features. There are two interactions in this graph:
+
+  - The user can brush over any axis to filter through the dataset
+  - The user can drag the labels on top of the axis to change the relative location of the features facilitating investigations. 
 
 ## Built With
 
@@ -42,7 +60,8 @@ r the versions available, see the [tags on this repository](https://github.com/y
 
 ## Authors
 
-* **Roozbeh Khodadadeh** - *Initial work* - [Github](https://github.com/roozgit)
+* **Roozbeh Khodadadeh** - *Idea and Main work* - [Github](https://github.com/roozgit)
+
 [Jiang Feng Li](https://github.com/JiangfengLi) also participated in the project
 
 ## Screen shots
