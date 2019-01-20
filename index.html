@@ -119,7 +119,7 @@
 <script src="js/parcoords.standalone.js"></script>
 
 <script type="text/javascript">
-    var pc = ParCoords()("#rightBottom").alpha(0.4);
+    var pc = ParCoords()("#rightBottom").alpha(0.6);
 
     function redraw(xfeature, yfeature) {
         //let twidth = d3.select('#leftsvg').node().getBBox().width;
@@ -215,21 +215,22 @@
     var pcrender = false;
     function createParallel() {
         let gdata = d3.select('#pointGroup').selectAll('circle').data();
-
-        if(!pcrender) {
+        d3.select('#rightBottom').selectAll("*").remove();
+        pc = ParCoords()("#rightBottom").alpha(0.6);
+        //if(!pcrender) {
             pc.data(gdata)
                 .hideAxis(["id", "time"])
                 .render()
                 .brushMode("1D-axes")
                 .reorderable();
 
-            pcrender = true;
+          //  pcrender = true;
             d3.selectAll("#rightBottom .label")
                 .attr('transform', "rotate(30)")
                 .style('font-size', "1.7em");
-        }
-        else
-            pc.data(gdata);
+        // }
+        // else
+        //     pc.data(gdata);
     }
 
     function createSmallMultiples() {
@@ -323,7 +324,6 @@
     scaleMap.set("speed", speed);
 
     const width = d3.select('#leftTop').node().clientWidth;
-    console.log(width);
     const height = 400;
     const margin = {top: 10, bottom: 25, right:20, left:50};
 
