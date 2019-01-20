@@ -152,10 +152,10 @@
     }
 
     var globalCounter = -1;
-    const BUFFER_SIZE = 100;
+    const BUFFER_SIZE = 50;
 
     function getSensorData() {
-        d3.json("http://192.168.0.3/ircam.json").then(function(data) {
+        d3.json("http://192.168.0.3/localsensors.json").then(function(data) {
             d3.json("http://192.168.0.3/gps.json").then(function (gpsData) {
                 let pg = d3.select('#pointGroup').selectAll('circle');
                 let graphData = pg.data();
@@ -206,7 +206,7 @@
     }
 
     function getPortableThermalCam() {
-        d3.json("http://192.168.0.3/localsensors.json").then(function(data) {
+        d3.json("http://192.168.0.3/ircam.json").then(function(data) {
             let hmd = data.thermalarray.reduce((x,y) => x.concat(y), []);
             heatmap.data(hmd);
             heatmap.attr('fill', d => color(d));
@@ -235,12 +235,14 @@
     function createSmallMultiples() {
         let data = d3.select('#pointGroup').selectAll('circle').data();
         let times = data.map(a => a.time);
+        //times.sort();
         let xsk = d3.scaleLinear().domain(d3.extent(times)).range([0, width]);
         for(let k of scaleMap.keys()) {
             let container = d3.select('#plot-'+k);
+            container.selectAll('path').remove();
             let ysk = scaleMap.get(k).range([height/12, 0]);
             let dataset = data.map(a => ({"y" : a[k]}));
-            dataset.sort();
+            //dataset.sort();
             let line = d3.line()
                 .x(function(d, i) { return xsk(times[i]); }) // set the x values for the line generator
                 .y(function(d) { return ysk(d.y); }) // set the y values for the line generator
@@ -262,6 +264,21 @@
         .attr('height', "250px")
         .attr('width', "100%");
 
+    let ylabel = ["A","B","C","D","E","F","G","H"];
+    for(let i = 0; i < 8; i++) {
+        heatmap
+            .append('text')
+            .attr("x", 50 + i * 25)
+            .attr("y", 230)
+            .text(ylabel[i]);
+
+        heatmap
+            .append('text')
+            .attr("x", 30)
+            .attr("y", i * 25 + 25)
+            .text(i + 1);
+    }
+
     heatmap = heatmap.append('g').selectAll('g')
         .data(hmo).enter()
         .append('rect')
@@ -273,21 +290,6 @@
         .attr('fill', 'none')
         .attr('stroke', "lightgrey")
         .attr('stroke-width', "1px");
-
-        // let ylabel = ["A","B","C","D","E","F","G","H"];
-        // for(let i = 0; i < 8; i++) {
-        //     heatmap
-        //         .append('text')
-        //         .attr("x", 50 + i * 25)
-        //         .attr("y", 230)
-        //         .text(ylabel[i]);
-        //
-        //     heatmap
-        //         .append('text')
-        //         .attr("x", 30)
-        //         .attr("y", i * 25 + 25)
-        //         .text(i + 1);
-        // }
 
 
     var color = d3.scaleSequential(d3.interpolateSpectral)
