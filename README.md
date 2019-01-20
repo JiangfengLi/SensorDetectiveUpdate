@@ -43,11 +43,8 @@ r the versions available, see the [tags on this repository](https://github.com/y
 ## Authors
 
 * **Roozbeh Khodadadeh** - *Initial work* - [Github](https://github.com/roozgit)
-s) who participated in this project.
+[Jiang Feng Li](https://github.com/JiangfengLi) also participated in the project
 
-## Acknowledgments
+## Screen shots
 
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
-
+![Dashboard](screenshot1.png)
