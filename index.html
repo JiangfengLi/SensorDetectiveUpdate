@@ -28,7 +28,7 @@
         <div class="collapse navbar-collapse" id="navbarResponsive">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="#">Home
+                    <a class="nav-link" href="#">Multivariate Feature Selection
                         <span class="sr-only">(current)</span>
                     </a>
                 </li>
@@ -90,8 +90,12 @@
             </div>
         </div>
         <div id="rightHolder" class="col-sm-6" style="display:flex;flex-direction: column;">
-            <div id="rightTop"></div>
-            <div id="rightBottom" class="parcoords" style="width:100%; height : 600px"></div>
+            <div class="row" id="rightTopx">
+                <div class="col-sm-4" id="rightTop"></div>
+                <div class="col-sm-8"><img src="logo.png" alt="LOGO" style="width:100%"/></div>
+
+            </div>
+            <div id="rightBottom" class="parcoords" style="width:100%; height : 500px"></div>
         </div>
     </div>
 </div>
@@ -103,13 +107,7 @@
         <div>Github repo<a href="https://www.github.com/roozgit/SensorDetective">
             Sensor Detective By Roozbeh Khodadadeh</a></div>
     </div>
-    <!-- Footer Links -->
 
-    <!-- Copyright -->
-    <div class="footer-copyright text-center py-3">© 2018 Copyright:
-        <a href="https://mdbootstrap.com/education/bootstrap/"> MDBootstrap.com</a>
-    </div>
-    <!-- Copyright -->
 
 </footer>
 <!-- Footer -->
@@ -124,6 +122,8 @@
     var pc = ParCoords()("#rightBottom").alpha(0.4);
 
     function redraw(xfeature, yfeature) {
+        //let twidth = d3.select('#leftsvg').node().getBBox().width;
+        //console.log(twidth)
         var xs = scaleMap.get(xfeature).range([0, width]);
         var ys = scaleMap.get(yfeature).range([height, 0]);
 
@@ -224,7 +224,9 @@
                 .reorderable();
 
             pcrender = true;
-            d3.selectAll("#rightBottom .label").attr('transform', "rotate(30)");
+            d3.selectAll("#rightBottom .label")
+                .attr('transform', "rotate(30)")
+                .style('font-size', "1.7em");
         }
         else
             pc.data(gdata);
@@ -258,22 +260,38 @@
     var heatmap = d3.select('#rightTop')
         .append('svg')
         .attr('height', "250px")
-        .attr('width', "250px");
+        .attr('width', "100%");
 
     heatmap = heatmap.append('g').selectAll('g')
         .data(hmo).enter()
         .append('rect')
         .attr('id', (d,i) => "rect-" + i)
-        .attr('x', (d,i) => (i%8) * 25)
+        .attr('x', (d,i) => (i%8) * 25 + 50)
         .attr('y', (d,i) => Math.floor(i/8) * 25)
-        .attr('height', "50px")
-        .attr('width', "50px")
+        .attr('height', "25px")
+        .attr('width', "25px")
         .attr('fill', 'none')
         .attr('stroke', "lightgrey")
         .attr('stroke-width', "1px");
 
+        // let ylabel = ["A","B","C","D","E","F","G","H"];
+        // for(let i = 0; i < 8; i++) {
+        //     heatmap
+        //         .append('text')
+        //         .attr("x", 50 + i * 25)
+        //         .attr("y", 230)
+        //         .text(ylabel[i]);
+        //
+        //     heatmap
+        //         .append('text')
+        //         .attr("x", 30)
+        //         .attr("y", i * 25 + 25)
+        //         .text(i + 1);
+        // }
+
+
     var color = d3.scaleSequential(d3.interpolateSpectral)
-        .domain([15, +35]);
+        .domain([5, +45]);
 
     var co2 = d3.scaleLinear().domain([200, 4500]);
     var tvoc = d3.scaleLinear().domain([10, 500]);
@@ -302,7 +320,8 @@
     scaleMap.set("alt", alt);
     scaleMap.set("speed", speed);
 
-    const width = 400;
+    const width = d3.select('#leftTop').node().clientWidth;
+    console.log(width);
     const height = 400;
     const margin = {top: 10, bottom: 25, right:20, left:50};
 
@@ -326,7 +345,7 @@
             .attr('id', "plot-" + k)
             .attr('height', height / 12)
             .attr('width', "100%")
-            .style('border', "1px solid lightgrey");
+            .style('border-bottom', "1px solid lightgrey");
         d3.select('#leftBottomText').append('p').text(k).style('font-size',".8em");
     }
 
