@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Bare - Start Bootstrap Template</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/parcoords.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+    <div class="container">
+        <a class="navbar-brand" href="#">Start Bootstrap</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Home
+                        <span class="sr-only">(current)</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                        <select class="custom-select" id="selectx">
+                            <option value="co2">CO2</option>
+                            <option value="tvoc">TVOC</option>
+                            <option value="orientx">Orient-X</option>
+                            <option value="orienty">Orient-Y</option>
+                            <option value="orientz">Orient-Z</option>
+                            <option value="proximity">PROX</option>
+                            <option value="ambLight">AmbLight</option>
+                            <option value="ambTemp">AmbTemp</option>
+                            <option value="lat">Latitude</option>
+                            <option value="lng" selected>Longitude</option>
+                            <option value="alt">Altitude</option>
+                            <option value="speed">Speed</option>
+                        </select>
+                </li>
+                <li class="nav-item">
+                    <select class="custom-select" id="selecty">
+                        <option value="co2">CO2</option>
+                        <option value="tvoc">TVOC</option>
+                        <option value="orientx">Orient-X</option>
+                        <option value="orienty">Orient-Y</option>
+                        <option value="orientz">Orient-Z</option>
+                        <option value="proximity">PROX</option>
+                        <option value="ambLight">AmbLight</option>
+                        <option value="ambTemp">AmbTemp</option>
+                        <option value="lat" selected>Latitude</option>
+                        <option value="lng">Longitude</option>
+                        <option value="alt">Altitude</option>
+                        <option value="speed">Speed</option>
+                    </select>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Services</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Contact</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Page Content -->
+<div class="container-fluid">
+    <div class="row">
+        <div id="left" class="col-sm-6"></div>
+        <div id="rightHolder" class="col-sm-6" style="display:flex;flex-direction: column;">
+            <div id="rightTop"></div>
+            <div id="rightBottom" class="parcoords" style="width:600px;height:300px"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap core JavaScript -->
+<script src="js/jquery-3.3.1.js"></script>
+<script src="js/bootstrap.bundle.js"></script>
+<script src="js/d3.js"></script>
+<script src="js/parcoords.standalone.js"></script>
+
+<script type="text/javascript">
+    var pc = ParCoords()("#rightBottom").alpha(0.4);
+
+    function redraw(xfeature, yfeature) {
+        var xs = scaleMap.get(xfeature).range([0, width]);
+        var ys = scaleMap.get(yfeature).range([height, 0]);
+
+        nodeGroup.select('g#axisLeft').remove();
+        nodeGroup.append('g')
+            .attr('id', "axisLeft")
+            .style('color', "darkslategrey")
+            .call(d3.axisLeft(ys));
+        nodeGroup.select('g#axisBottom').remove();
+        nodeGroup.append('g')
+            .attr('id', "axisBottom")
+            .style('color', "darkslategrey")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(xs));
+
+        d3.selectAll('.tick')
+            .attr('pointer-events', "none");
+
+        d3.select('#nodeGroup')
+            .selectAll('circle')
+            .attr('cx', d => xs(d[xfeature]))
+            .attr('cy', d => ys(d[yfeature]))
+            .attr('r', 5)
+            .attr('stroke', "black")
+            .style('fill', "black");
+    }
+
+    var globalCounter = -1;
+    const BUFFER_SIZE = 100;
+
+    function getSensorData() {
+        d3.json("http://192.168.0.3/ircam.json").then(function(data) {
+            d3.json("http://192.168.0.3/gps.json").then(function (gpsData) {
+                let pg = d3.select('#pointGroup').selectAll('circle');
+                let graphData = pg.data();
+
+                if(graphData.length === BUFFER_SIZE) {
+                    graphData.splice(0, Math.floor(BUFFER_SIZE / 10));
+                    pg.data(graphData, d => d.id).exit().remove();
+                }
+
+                globalCounter+=1;
+                let np = {
+                    "id" : globalCounter,
+                    "time": + new Date(),
+                    "co2": data.gas.eco2,
+                    "tvoc": data.gas.tvoc,
+                    "orientx": data.orientation.x,
+                    "orienty": data.orientation.y,
+                    "orientz": data.orientation.z,
+                    "proximity": data.proximity.proximity,
+                    "ambLight": data.proximity.ambientlight,
+                    "ambTemp": data.temperature.temperature,
+                    "lng": gpsData.gpsData.longitude + (40 * Math.random() - 20),
+                    "lat": gpsData.gpsData.latitude + (40 * Math.random() - 20),
+                    "alt": gpsData.gpsData.altitude,
+                    "speed": gpsData.gpsData.speed
+                };
+                let gdata = d3.select('#pointGroup').selectAll('circle').data().concat([np]);
+
+                let xfeat = d3.select('#selectx').node().value;
+                let yfeat = d3.select('#selecty').node().value;
+                let xs = scaleMap.get(xfeat).range([0, width]);
+                let ys = scaleMap.get(yfeat).range([height, 0]);
+
+                pg.data(gdata,d => d.id).enter()
+                    .append('circle')
+                    .attr('cx', d => xs(d[xfeat]))
+                    .attr('cy', d => ys(d[yfeat]))
+                    .attr('r', 5)
+                    .attr('fill', "black");
+
+                let intensity = d3.scaleSequential(d3.interpolateGreys)
+                    .domain([0, pg.data().length-1]);
+                pg.each(function(d,i) {
+                    d3.select(this).style('fill', intensity(i));
+                });
+            });
+        });
+    }
+
+    function getPortableThermalCam() {
+        d3.json("http://192.168.0.3/localsensors.json").then(function(data) {
+            let hmd = data.thermalarray.reduce((x,y) => x.concat(y), []);
+            heatmap.data(hmd);
+            heatmap.attr('fill', d => {
+                return color(d);
+            });
+        })
+    }
+    var pcrender = false;
+    function createParallel() {
+        let gdata = d3.select('#pointGroup').selectAll('circle').data();
+
+        if(!pcrender) {
+            pc.data(gdata)
+                .hideAxis(["id", "time"])
+                .rotateLabels(true)
+                .render()
+                .brushMode("1D-axes")
+                .reorderable()
+                //.createAxes();
+            pcrender = true;
+            d3.selectAll("#rightBottom .label").attr('transform', "rotate(30)");
+        }
+        else
+            pc.data(gdata);
+    }
+
+    let hmo = [];
+    for(let i = 0; i < 64; i++) {
+        hmo.push(0);
+    }
+    var heatmap = d3.select('#rightTop')
+        .append('svg')
+        .attr('height', "250px")
+        .attr('width', "250px");
+
+    heatmap = heatmap.append('g').selectAll('g')
+        .data(hmo).enter()
+        .append('rect')
+        .attr('id', (d,i) => "rect-" + i)
+        .attr('x', (d,i) => (i%8) * 25)
+        .attr('y', (d,i) => Math.floor(i/8) * 25)
+        .attr('height', "50px")
+        .attr('width', "50px")
+        .attr('fill', 'none')
+        .attr('stroke', "lightgrey")
+        .attr('stroke-width', "1px");
+
+    var color = d3.scaleSequential(d3.interpolateSpectral)
+        .domain([15, +35]);
+
+    var co2 = d3.scaleLinear().domain([200, 4500]);
+    var tvoc = d3.scaleLinear().domain([10, 500]);
+    var orientx = d3.scaleLinear().domain([0, 359]);
+    var orienty = d3.scaleLinear().domain([0, 359]);
+    var orientz = d3.scaleLinear().domain([0, 359]);
+    var proximity = d3.scaleLinear().domain([1, 65535]);
+    var ambLight = d3.scaleLinear().domain([1, 65535]);
+    var ambTemp = d3.scaleLinear().domain([-15, 55]);
+    var lat = d3.scaleLinear().domain([-180,180]);
+    var lng = d3.scaleLinear().domain([-180, 180]);
+    var alt = d3.scaleLinear().domain([0, 1000]);
+    var speed = d3.scaleLinear().domain([0,100]);
+
+    var scaleMap = new Map();
+    scaleMap.set("co2", co2);
+    scaleMap.set("tvoc", tvoc);
+    scaleMap.set("orientx", orientx);
+    scaleMap.set("orienty", orienty);
+    scaleMap.set("orientz", orientz);
+    scaleMap.set("proximity", proximity);
+    scaleMap.set("ambLight", ambLight);
+    scaleMap.set("ambTemp", ambTemp);
+    scaleMap.set("lat", lat);
+    scaleMap.set("lng", lng);
+    scaleMap.set("alt", alt);
+    scaleMap.set("speed", speed);
+
+    const width = 600;
+    const height = 600;
+    const margin = {top: 10, bottom: 25, right:20, left:50};
+
+    var leftsvg = d3.select('#left')
+        .append('svg')
+        .attr('id', "leftsvg")
+        .attr('width', width + margin.right + margin.left)
+        .attr('height', height + margin.top + margin.bottom);
+
+    var nodeGroup = leftsvg.append('g')
+        .attr('id', "nodeGroup")
+        .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+    var pointGroup =
+        nodeGroup.append('g').attr('id', "pointGroup");
+
+    redraw("lng", "lat");
+
+    d3.select('#selectx').on('change', function() {
+        redraw(d3.select(this).node().value, d3.select('#selecty').node().value);
+    });
+
+    d3.select('#selecty').on('change', function() {
+        redraw(d3.select('#selectx').node().value, d3.select(this).node().value);
+    });
+    setInterval(getPortableThermalCam, 2000);
+    setInterval(getSensorData, 1000);
+    setInterval(createParallel, 5000);
+
+</script>
+
+</body>
+
+</html>
